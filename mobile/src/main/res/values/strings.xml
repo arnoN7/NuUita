@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">NuUita</string>
+    <string name="PleaseSome">Entrez un article</string>
+    <string name="save">Enregistrer</string>
+    <string name="not_logged_in">Mode déconnecté</string>
+    <string name="logged_in">Bonjour, %1$s</string>
+    <string name="drawer_open">Ouvrir le menu</string>
+    <string name="drawer_close">Fermer le menu</string>
+    <string name="action_logout">Déconnexion</string>
+    <string name="action_login">Log In</string>
+    <string name="action_share">Partager la liste</string>
+    <string name="shareWith">Vous partagez déjà la liste avec</string>
+    <string name="EmailPartageW">E-mail de la Nouvelle personne avec qui vous voulez partagez la liste</string>
+</resources>
