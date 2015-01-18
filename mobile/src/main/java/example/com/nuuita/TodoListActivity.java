@@ -152,11 +152,10 @@ public class TodoListActivity extends Activity {
                 }
             });
             mDrawerLayout.setDrawerListener(mDrawerToggle);
-        }
-
-        if (savedInstanceState == null) {
-            if (fragments.size() > 0) {
-                selectItem(0);
+            if (savedInstanceState == null) {
+                if (fragments.size() > 0) {
+                    selectItem(0);
+                }
             }
         }
     }

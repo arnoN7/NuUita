@@ -49,8 +49,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+    private EditText mPasswordReapeatView;
     private View mProgressView;
     private View mLoginFormView;
+    private TextView mSignUp;
+    private Button mEmailSignInButton;
+    private boolean signUp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +63,30 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        signUp = false;
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordReapeatView = (EditText) findViewById(R.id.repeatedPassword);
+        mPasswordReapeatView.setVisibility(View.GONE);
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mSignUp = (TextView) findViewById(R.id.sign_up_text);
+        mSignUp.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (signUp == false) {
+                    mPasswordReapeatView.setVisibility(View.VISIBLE);
+                    mEmailSignInButton.setText(getString(R.string.action_sign_up));
+                    mSignUp.setText(getString(R.string.action_sign_in));
+                    signUp = true;
+                } else {
+                    mPasswordReapeatView.setVisibility(View.GONE);
+                    mEmailSignInButton.setText(getString(R.string.action_sign_in));
+                    mSignUp.setText(getString(R.string.action_sign_up));
+                    signUp = false;
+                }
+            }
+        });
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -73,7 +98,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,6 +128,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
+        mPasswordReapeatView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
@@ -117,6 +143,14 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
+        }
+        if (signUp == true) {
+            String repeatedPass = mPasswordReapeatView.getText().toString();
+            if (!isRepeatedPassEquals(password, repeatedPass)) {
+                mPasswordReapeatView.setError(getString(R.string.error_password_dont_match));
+                focusView = mPasswordReapeatView;
+                cancel = true;
+            }
         }
 
         // Check for a valid email address.
@@ -153,6 +187,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     private boolean isPasswordValid(String password) {
         return password.length() > 4;
+    }
+
+    private boolean isRepeatedPassEquals(String password, String repeatedPassword) {
+        return password.equals(repeatedPassword);
     }
 
     /**
@@ -264,35 +302,28 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-                try {
-                    currentUser = ParseUser.logIn(mEmail,mPassword);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
-        /*login, password, new LogInCallback() {
-            public void done(ParseUser user, ParseException e) {
-                if (user != null) {
-                    Intent intent = new Intent(getApplicationContext(), TodoListActivity.class);
-                    startActivity(intent);
+            try {
+                if (signUp) {
+                    ParseUser user = new ParseUser();
+                    user.setUsername(mEmail);
+                    user.setPassword(mPassword);
+                    user.setEmail(mEmail);
+                    user.signUp();
+                    currentUser = user.logIn(mEmail, mPassword);
                 } else {
-                    // Signup failed. Look at the ParseException to see what happened.
+                    currentUser = ParseUser.logIn(mEmail, mPassword);
                 }
-            }
-        });*/
 
-            if (currentUser!=null && currentUser.getEmail().equals(mEmail)) {
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if (currentUser != null && currentUser.getEmail().equals(mEmail)) {
                 Intent goToHomeActivity = new Intent(getApplication(), TodoListActivity.class);
                 startActivity(goToHomeActivity);
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
-
-            // TODO: register the new account here.
         }
 
         @Override
