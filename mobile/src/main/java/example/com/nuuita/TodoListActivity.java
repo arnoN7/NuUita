@@ -42,7 +42,7 @@ public class TodoListActivity extends Activity {
     private ListView mNavigationMenu;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
-    private List<ParseRole> roles;
+    private List<TodoListFragment> fragments;
     private ActionBarDrawerToggle mDrawerToggle;
     private ImageButton mAddTodoList;
     private ArrayAdapter<String> navigationMenuAdapter;
@@ -58,10 +58,6 @@ public class TodoListActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.todo_list_activity);
 
-
-        //setContentView(R.layout.todo_list_fragment);
-        roles = new ArrayList<ParseRole>();
-
         // If User is not Logged In Start Activity Login
         if (ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
             //Go to login activity
@@ -69,25 +65,23 @@ public class TodoListActivity extends Activity {
             finish();
         } else {
             mTitle = mDrawerTitle = getTitle();
-            //todoListFragment = new TodoListFragment();
             mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
             mNavigationMenu = (ListView) findViewById(R.id.list_navigation_menu);
             mAddTodoList = (ImageButton) findViewById(R.id.add_todo_list);
             mLeftDrawer = (RelativeLayout) findViewById(R.id.left_drawer);
             //Get TodoLists Names
-            roles = initTodoListRoles();
+            fragments = initTodoListRoles();
 
             // set a custom shadow that overlays the main content when the drawer opens
             mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
             // Set the adapter for the list view
             navigationMenuAdapter = new ArrayAdapter<String>(this,
-                    R.layout.drawer_list_item, getTodoListsNames(roles));
+                    R.layout.drawer_list_item, getTodoListsNames(fragments));
             mNavigationMenu.setAdapter(navigationMenuAdapter);
             AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    ParseRole currentTodoList = roles.get(position);
-                    selectItem(currentTodoList);
+                    selectItem(position);
                 }
             };
             mNavigationMenu.setOnItemClickListener(listener);
@@ -133,7 +127,7 @@ public class TodoListActivity extends Activity {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             String newTodoList = input.getText().toString();
                             //TODO check if a todolist with the same name does not exist
-                            int index = roles.size();
+                            int index = fragments.size();
                             navigationMenuAdapter.insert(newTodoList, index);
                             ParseACL roleACL = new ParseACL();
                             roleACL.setReadAccess(ParseUser.getCurrentUser(),true);
@@ -142,7 +136,8 @@ public class TodoListActivity extends Activity {
                             todoListRole.put(Todo.LIST_NAME_KEY, newTodoList);
                             todoListRole.put(Todo.AUTHOR_KEY, ParseUser.getCurrentUser());
                             todoListRole.getUsers().add(ParseUser.getCurrentUser());
-                            roles.add(todoListRole);
+                            TodoListFragment newFragment = TodoListFragment.newInstance(todoListRole);
+                            fragments.add(newFragment);
                             todoListRole.saveEventually();
                         }
                     });
@@ -160,8 +155,8 @@ public class TodoListActivity extends Activity {
         }
 
         if (savedInstanceState == null) {
-            if (roles.size() > 0) {
-                selectItem(roles.get(0));
+            if (fragments.size() > 0) {
+                selectItem(0);
             }
         }
     }
@@ -185,7 +180,7 @@ public class TodoListActivity extends Activity {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String newTodoList = input.getText().toString();
                 //TODO check if a todolist with the same name does not exist
-                int index = roles.size();
+                int index = fragments.size();
                 navigationMenuAdapter.insert(newTodoList, index);
             }
         });
@@ -199,20 +194,25 @@ public class TodoListActivity extends Activity {
         alert.show();
     }
 
-    private List<ParseRole> initTodoListRoles() {
+    private List<TodoListFragment> initTodoListRoles() {
         ParseQuery<ParseRole> query = ParseRole.getQuery();
         List<ParseRole> requestedRoles = null;
+        List<TodoListFragment> fragments = new ArrayList<>();
         try {
             requestedRoles = query.find();
+            for (int i = 0; i < requestedRoles.size(); i++) {
+                TodoListFragment fragment = TodoListFragment.newInstance(requestedRoles.get(i));
+                fragments.add(fragment);
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return requestedRoles;
+        return fragments;
     }
 
-    private void selectItem(ParseRole selectedRole) {
+    private void selectItem(int position) {
         // update the main content by replacing fragments
-        Fragment fragment = TodoListFragment.newInstance(selectedRole);
+        Fragment fragment = fragments.get(position);
 
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -221,7 +221,7 @@ public class TodoListActivity extends Activity {
         ft.commit();
 
         // update selected item title, then close the drawer
-        setTitle(selectedRole.getString(Todo.LIST_NAME_KEY));
+        setTitle(((TodoListFragment) fragment).getTodoListRole().getString(Todo.LIST_NAME_KEY));
         mDrawerLayout.closeDrawer(mLeftDrawer);
     }
 
@@ -366,15 +366,15 @@ public class TodoListActivity extends Activity {
 
             alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    for (int i = 0; i < roles.size(); i++) {
-                        if(roles.get(i).getName().equals(roleToDelete.getName())) {
-                            roles.remove(i);
+                    for (int i = 0; i < fragments.size(); i++) {
+                        if(fragments.get(i).getTodoListRole().getName().equals(roleToDelete.getName())) {
+                            fragments.remove(i);
                             navigationMenuAdapter.remove(roleToDelete.getString(Todo.LIST_NAME_KEY));
                         }
                     }
                     currentFragment.deleteList();
-                    if (roles.size() > 0) {
-                        selectItem(roles.get(0));
+                    if (fragments.size() > 0) {
+                        selectItem(0);
                     }
                 }
             });
@@ -411,12 +411,12 @@ public class TodoListActivity extends Activity {
         }
     };
 
-    public List<String> getTodoListsNames (List<ParseRole> roles) {
+    public List<String> getTodoListsNames (List<TodoListFragment> fragments) {
         List<String> names = null;
-        if (roles != null) {
+        if (fragments != null) {
             names =new ArrayList<String>();
-            for (int i = 0; i < roles.size(); i++) {
-                names.add(roles.get(i).getString(Todo.LIST_NAME_KEY));
+            for (int i = 0; i < fragments.size(); i++) {
+                names.add(fragments.get(i).getTodoListRole().getString(Todo.LIST_NAME_KEY));
             }
         }
         return names;

@@ -34,15 +34,17 @@ public class TodoListFragment extends Fragment {
     private Button buttonOk;
     private String todoListName;
     private ParseRole todoListRole;
+    private List<Todo> todoList;
 
     private TextView loggedInInfoView;
 
-    public static Fragment newInstance(ParseRole role) {
-        Fragment fragment = new TodoListFragment();
+    public static TodoListFragment newInstance(ParseRole role) {
+        TodoListFragment fragment = new TodoListFragment();
         Bundle args = new Bundle();
         args.putString(TodoListFragment.ARG_TODO_LIST_NAME, role.getString(Todo.LIST_NAME_KEY));
         fragment.setArguments(args);
-        ((TodoListFragment) fragment).setTodoListRole(role);
+        fragment.setTodoListRole(role);
+        fragment.getTodos(true);
         return fragment;
     }
 
@@ -79,7 +81,7 @@ public class TodoListFragment extends Fragment {
         });
         updateLoggedInInfo();
 
-        List<Todo> todoList = getTodos();
+        todoList = getTodos(false);
         //Add empty item at the end of the list
         Todo emptyTodo = new Todo();
         initEmptyTodo(emptyTodo);
@@ -92,16 +94,22 @@ public class TodoListFragment extends Fragment {
         return v;
     }
 
-    private List<Todo> getTodos() {
-        ParseQuery<Todo> query = Todo.getQuery();
-        query.whereEqualTo(Todo.LIST_NAME_KEY, todoListName);
-        List<Todo> todoList = null;
-        try {
-            todoList = query.find();
-        } catch (ParseException e) {
-            e.printStackTrace();
+    private List<Todo> getTodos(boolean forceServerRequest) {
+        List<Todo> requestedTodoList = null;
+        if (todoList == null || forceServerRequest == true) {
+            ParseQuery<Todo> query = Todo.getQuery();
+            query.whereEqualTo(Todo.LIST_NAME_KEY, todoListName);
+
+            try {
+                requestedTodoList = query.find();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            requestedTodoList = todoList;
         }
-        return todoList;
+
+        return requestedTodoList;
     }
 
     public void synchroniseTodos() {
@@ -159,7 +167,7 @@ public class TodoListFragment extends Fragment {
     }
 
     public void deleteList () {
-        List<Todo> todoList = getTodos();
+        List<Todo> todoList = getTodos(true);
         for (int i = 0; i < todoList.size(); i++) {
             todoList.get(i).deleteEventually();
         }
