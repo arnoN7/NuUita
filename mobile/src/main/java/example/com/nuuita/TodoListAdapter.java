@@ -33,21 +33,19 @@ public class TodoListAdapter extends BaseAdapter {
     List<Todo> todoList;
     Context context;
     Button buttonOk;
+    TodoListFragment fragment;
 
 
-    public TodoListAdapter(Context context, int resource, List<Todo> objects, Button buttonOk) {
+    public TodoListAdapter(Context context, int resource, List<Todo> objects, Button buttonOk, TodoListFragment fragment) {
         this.context = context;
         todoList = new ArrayList<Todo>();
         todoList.addAll(objects);
         this.buttonOk = buttonOk;
+        this.fragment = fragment;
     }
 
     public List<Todo> getTodoList() {
         return todoList;
-    }
-
-    public void reloadNewImages() {
-        this.notifyDataSetChanged();
     }
 
     @Override
@@ -78,7 +76,7 @@ public class TodoListAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View view, ViewGroup viewGroup) {
         final Holder holder;
-        Todo todo = todoList.get(position);
+        final Todo todo = todoList.get(position);
         String todoTitle = todo.getTitle();
         EditText todoTextView;
         ImageButton deleteButton;
@@ -107,9 +105,10 @@ public class TodoListAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 todoList.get(position).deleteInBackground();
+                fragment.removeTodoFromCache(todoList.get(position));
                 todoList.remove(position);
                 ifNeedToAddEmptyTodo();
-                reloadNewImages();
+                notifyDataSetChanged();
 
             }
         });
@@ -130,9 +129,10 @@ public class TodoListAdapter extends BaseAdapter {
                         public void done(ParseException e) {
                             holder.todo.setDraft(false);
                             setItalicIfDraft(holder.todo, holder.todoTextView);
-                            Log.d("Save Keyboard", "Save Eventually done ..");
+                            Log.d("Save Keyboard", "Save Eventually done ...");
                         }
                     });
+                    fragment.addTodoToCache(holder.todo);
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     ifNeedToAddEmptyTodo();
@@ -153,10 +153,10 @@ public class TodoListAdapter extends BaseAdapter {
                 if (Caption.getText().toString().length() > 0) {
                     // todoList.get(position2).setTitle(Caption.getText().toString());
                     todoList.get(position2).setDraft(true);
-                    buttonOk.setVisibility(View.VISIBLE);
+                    //buttonOk.setVisibility(View.VISIBLE);
                     setItalicIfDraft(todoList.get(position2), Caption);
                 } else {
-                    buttonOk.setVisibility(View.INVISIBLE);
+                    //buttonOk.setVisibility(View.INVISIBLE);
                     final String please = ((Activity) context).getString(R.string.PleaseSome);
                     Toast.makeText(context, please, Toast.LENGTH_SHORT).show();
                 }
