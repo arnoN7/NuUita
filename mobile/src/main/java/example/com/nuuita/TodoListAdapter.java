@@ -19,6 +19,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseException;
+import com.parse.SaveCallback;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,12 +124,18 @@ public class TodoListAdapter extends BaseAdapter {
                 if (actionId == EditorInfo.IME_ACTION_SEND) {
                     //
                     holder.todo.setTitle(holder.todoTextView.getText().toString());
-                    ((TodoListActivity) context).getTaskQueue().add(holder.todo);
+                    buttonOk.setVisibility(View.INVISIBLE);
+                    holder.todo.saveEventually(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            holder.todo.setDraft(false);
+                            setItalicIfDraft(holder.todo, holder.todoTextView);
+                            Log.d("Save Keyboard", "Save Eventually done ..");
+                        }
+                    });
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    Todo newTodo = new Todo();
-                    ((TodoListActivity) context).getCurrentFragment().initEmptyTodo(newTodo);
-                    addItem(newTodo);
+                    ifNeedToAddEmptyTodo();
                 }
                 return handled;
             }
@@ -144,10 +153,10 @@ public class TodoListAdapter extends BaseAdapter {
                 if (Caption.getText().toString().length() > 0) {
                     // todoList.get(position2).setTitle(Caption.getText().toString());
                     todoList.get(position2).setDraft(true);
-                    // buttonOk.setVisibility(View.VISIBLE);
+                    buttonOk.setVisibility(View.VISIBLE);
                     setItalicIfDraft(todoList.get(position2), Caption);
                 } else {
-                    //  buttonOk.setVisibility(View.INVISIBLE);
+                    buttonOk.setVisibility(View.INVISIBLE);
                     final String please = ((Activity) context).getString(R.string.PleaseSome);
                     Toast.makeText(context, please, Toast.LENGTH_SHORT).show();
                 }

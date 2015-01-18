@@ -4,14 +4,20 @@
    <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_action_share"
-        nuUita:showAsAction="ifRoom"
+        android:showAsAction="ifRoom"
         android:title="@string/action_share">
     </item>
 
+    <item
+        android:id="@+id/action_delete"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_discard"
+        android:title="@string/action_delete">
+    </item>
    <item
         android:id="@+id/action_logout"
-        nuUita:showAsAction="ifRoom"
         android:title="@string/action_logout">
     </item>
+
 
 </menu>

@@ -28,6 +28,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.parse.LogInCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
@@ -40,13 +41,6 @@ import java.util.List;
  */
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -119,7 +113,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(email, password)) {
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -150,21 +144,14 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
+        if (TextUtils.isEmpty(email)) {
+            return false;
+        } else {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        }
     }
 
-    private boolean isPasswordValid(String login, String password) {
-        ParseUser.logInInBackground(login, password, new LogInCallback() {
-            public void done(ParseUser user, ParseException e) {
-                if (user != null) {
-                    Intent intent = new Intent(getApplicationContext(), TodoListActivity.class);
-                    startActivity(intent);
-                } else {
-                    // Signup failed. Look at the ParseException to see what happened.
-                }
-            }
-        });
+    private boolean isPasswordValid(String password) {
         return password.length() > 4;
     }
 
@@ -266,33 +253,46 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         private final String mEmail;
         private final String mPassword;
+        private ParseUser currentUser;
 
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
+            ParseUser.logOut();
+            currentUser = null;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+                try {
+                    currentUser = ParseUser.logIn(mEmail,mPassword);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+        /*login, password, new LogInCallback() {
+            public void done(ParseUser user, ParseException e) {
+                if (user != null) {
+                    Intent intent = new Intent(getApplicationContext(), TodoListActivity.class);
+                    startActivity(intent);
+                } else {
+                    // Signup failed. Look at the ParseException to see what happened.
+                }
+            }
+        });*/
+
+            if (currentUser!=null && currentUser.getEmail().equals(mEmail)) {
+                Intent goToHomeActivity = new Intent(getApplication(), TodoListActivity.class);
+                startActivity(goToHomeActivity);
+                return true;
+            }
+            else {
                 return false;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
             // TODO: register the new account here.
-            return true;
         }
 
         @Override

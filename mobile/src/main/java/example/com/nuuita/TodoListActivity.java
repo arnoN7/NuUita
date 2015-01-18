@@ -38,7 +38,6 @@ public class TodoListActivity extends Activity {
     public static final int LOGIN_ACTIVITY_CODE = 100;
     public static final int EDIT_ACTIVITY_CODE = 200;
     public static String EMAIL_KEY = "email";
-    private ParseEventTaskQueue taskQueue;
     private DrawerLayout mDrawerLayout;
     private ListView mNavigationMenu;
     private CharSequence mDrawerTitle;
@@ -61,14 +60,13 @@ public class TodoListActivity extends Activity {
 
 
         //setContentView(R.layout.todo_list_fragment);
-        taskQueue = new ParseEventTaskQueue();
         roles = new ArrayList<ParseRole>();
 
         // If User is not Logged In Start Activity Login
         if (ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
-            //TODO goto login activity
-            //ParseLoginBuilder builder = new ParseLoginBuilder(this);
-            //startActivityForResult(builder.build(), LOGIN_ACTIVITY_CODE);
+            //Go to login activity
+            goToLoginActivity();
+            finish();
         } else {
             mTitle = mDrawerTitle = getTitle();
             //todoListFragment = new TodoListFragment();
@@ -145,7 +143,7 @@ public class TodoListActivity extends Activity {
                             todoListRole.put(Todo.AUTHOR_KEY, ParseUser.getCurrentUser());
                             todoListRole.getUsers().add(ParseUser.getCurrentUser());
                             roles.add(todoListRole);
-                            taskQueue.add(todoListRole);
+                            todoListRole.saveEventually();
                         }
                     });
 
@@ -158,15 +156,19 @@ public class TodoListActivity extends Activity {
                     alert.show();
                 }
             });
-
+            mDrawerLayout.setDrawerListener(mDrawerToggle);
         }
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         if (savedInstanceState == null) {
             if (roles.size() > 0) {
                 selectItem(roles.get(0));
             }
         }
+    }
+
+    private void goToLoginActivity() {
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
     }
 
     private void displayAlertDialog(String title, String message, DialogInterface.OnClickListener positiveButtonListener) {
@@ -350,9 +352,40 @@ public class TodoListActivity extends Activity {
             // Unpin all the current objects
             /*ParseObject
                     .unpinAllInBackground(TodoListApplication.TODO_GROUP_NAME);*/
-            //TODO goto login activity
+            goToLoginActivity();
             //ParseLoginBuilder builder = new ParseLoginBuilder(this);
             //startActivityForResult(builder.build(), LOGIN_ACTIVITY_CODE);
+        }
+        if (item.getItemId() == R.id.action_delete) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(TodoListActivity.this);
+            final ParseRole  roleToDelete = currentFragment.getTodoListRole();
+            String todoListName = roleToDelete.getString(Todo.LIST_NAME_KEY);
+
+            alert.setTitle("Supprimer la liste: " + todoListName);
+            alert.setMessage("Voulez-vous vraiment supprimer la liste " + todoListName + "?");
+
+            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    for (int i = 0; i < roles.size(); i++) {
+                        if(roles.get(i).getName().equals(roleToDelete.getName())) {
+                            roles.remove(i);
+                            navigationMenuAdapter.remove(roleToDelete.getString(Todo.LIST_NAME_KEY));
+                        }
+                    }
+                    currentFragment.deleteList();
+                    if (roles.size() > 0) {
+                        selectItem(roles.get(0));
+                    }
+                }
+            });
+
+            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    // Canceled.
+                }
+            });
+
+            alert.show();
         }
 
         // The action bar home/up action should open or close the drawer.
@@ -361,10 +394,6 @@ public class TodoListActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public ParseEventTaskQueue getTaskQueue() {
-        return taskQueue;
     }
 
     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {

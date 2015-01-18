@@ -13,14 +13,14 @@
         />
 
     <EditText
-            android:id="@+id/todo_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:textSize="20sp"
-            android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@+id/buttonDeleteTODO"
-            android:inputType="textCapWords"
-            android:imeOptions="actionSend"
-            />
+        android:id="@+id/todo_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textSize="20sp"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/buttonDeleteTODO"
+        android:inputType="textCapWords"
+        android:imeOptions="actionSend"
+        />
 </RelativeLayout>

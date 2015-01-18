@@ -1,6 +1,7 @@
 package example.com.nuuita;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,8 +36,6 @@ public class TodoListFragment extends Fragment {
     private ParseRole todoListRole;
 
     private TextView loggedInInfoView;
-    private String groupDescription;
-    private ParseACL groupACL;
 
     public static Fragment newInstance(ParseRole role) {
         Fragment fragment = new TodoListFragment();
@@ -64,9 +63,8 @@ public class TodoListFragment extends Fragment {
 
         // If User is not Logged In Start Activity Login
         if (ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
-            //TODO goto Login Activity
-            //ParseLoginBuilder builder = new ParseLoginBuilder(getActivity());
-            //startActivityForResult(builder.build(), TodoListActivity.LOGIN_ACTIVITY_CODE);
+            Intent loginIntent = new Intent(getActivity(), LoginActivity.class);
+            startActivity(loginIntent);
         }
 
         // Set up the views
@@ -118,7 +116,7 @@ public class TodoListFragment extends Fragment {
             }
             if (todo.isDraft() && !todo.getTitle().equals("")) {
                 todo.setDraft(false);
-                ((TodoListActivity) getActivity()).getTaskQueue().add(todo);
+                todo.saveEventually();
             }
         }
         if (needToAddEmtyTodo) {
@@ -160,6 +158,14 @@ public class TodoListFragment extends Fragment {
         newTodo.setACL(todoACL);
     }
 
+    public void deleteList () {
+        List<Todo> todoList = getTodos();
+        for (int i = 0; i < todoList.size(); i++) {
+            todoList.get(i).deleteEventually();
+        }
+        todoListRole.deleteEventually();
+    }
+
     public void updateLoggedInInfo() {
         if (!ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
             ParseUser currentUser = ParseUser.getCurrentUser();
@@ -182,7 +188,7 @@ public class TodoListFragment extends Fragment {
         todoListRole.getUsers().add(user);
         todoListRole.getACL().setReadAccess(user,true);
         todoListRole.getACL().setWriteAccess(user,true);
-        ((TodoListActivity)getActivity()).getTaskQueue().add(todoListRole);
+        todoListRole.saveEventually();
     }
 
     public void setTodoListRole(ParseRole todoListRole) {

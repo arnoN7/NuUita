@@ -17,7 +17,7 @@ public class NuUitaApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // add Todo subclass
+        // add todo's subclass
         ParseObject.registerSubclass(Todo.class);
 
         // enable the Local Datastore
