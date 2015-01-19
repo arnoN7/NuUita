@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.parse.ParseACL;
 import com.parse.ParseAnonymousUtils;
@@ -28,6 +30,7 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseRole;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,9 +128,9 @@ public class TodoListActivity extends Activity {
 
                     alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            String newTodoList = input.getText().toString();
+                            final String newTodoList = input.getText().toString();
                             //TODO check if a todolist with the same name does not exist
-                            int index = fragments.size();
+                            final int index = fragments.size();
                             navigationMenuAdapter.insert(newTodoList, index);
                             ParseACL roleACL = new ParseACL();
                             roleACL.setReadAccess(ParseUser.getCurrentUser(),true);
@@ -138,7 +141,14 @@ public class TodoListActivity extends Activity {
                             todoListRole.getUsers().add(ParseUser.getCurrentUser());
                             TodoListFragment newFragment = TodoListFragment.newInstance(todoListRole);
                             fragments.add(newFragment);
-                            todoListRole.saveEventually();
+                            todoListRole.saveEventually(new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    selectItem(index);
+                                    Toast listCreated = Toast.makeText(getApplication(), getString(R.string.new_list_created, newTodoList), Toast.LENGTH_LONG);
+                                    listCreated.show();
+                                }
+                            });
                         }
                     });
 
@@ -152,11 +162,7 @@ public class TodoListActivity extends Activity {
                 }
             });
             mDrawerLayout.setDrawerListener(mDrawerToggle);
-            if (savedInstanceState == null) {
-                if (fragments.size() > 0) {
-                    selectItem(0);
-                }
-            }
+            mDrawerLayout.openDrawer(mLeftDrawer);
         }
     }
 
