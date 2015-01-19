@@ -87,7 +87,7 @@ public class TodoListAdapter extends BaseAdapter {
             deleteButton = (ImageButton) view.findViewById(R.id.buttonDeleteTODO);
             todoTextView.setTag(position);
             todoTextView.setText(todoTitle);
-            holder = new Holder(todoTextView, todo, null, deleteButton);
+            holder = new Holder(todoTextView, todo, null, deleteButton, null);
             view.setTag(holder);
         } else {
             holder = (Holder) view.getTag();
@@ -123,16 +123,8 @@ public class TodoListAdapter extends BaseAdapter {
                 if (actionId == EditorInfo.IME_ACTION_SEND) {
                     //
                     holder.todo.setTitle(holder.todoTextView.getText().toString());
-                    buttonOk.setVisibility(View.INVISIBLE);
-                    holder.todo.saveEventually(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            holder.todo.setDraft(false);
-                            setItalicIfDraft(holder.todo, holder.todoTextView);
-                            Log.d("Save Keyboard", "Save Eventually done ...");
-                        }
-                    });
-                    fragment.addTodoToCache(holder.todo);
+                    holder.todo.saveEventually(newSavedTodoCallback(holder));
+                    fragment.updateCache(holder.todo);
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     ifNeedToAddEmptyTodo();
@@ -166,9 +158,37 @@ public class TodoListAdapter extends BaseAdapter {
             public void afterTextChanged(Editable editable) {
             }
         };
+        holder.focusListener = new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                final int position2 = holder.todoTextView.getId();
+                final EditText Caption = (EditText) holder.todoTextView;
+                if (hasFocus == false && holder.todo.isDraft()) {
+                    Log.d("Focus", "Save old title: "+ holder.todo.getTitle() + " New Title: " + holder.todoTextView.getText().toString());
+                    holder.todo.setTitle(holder.todoTextView.getText().toString());
+                    holder.todo.saveEventually(newSavedTodoCallback(holder));
+                    fragment.updateCache(holder.todo);
+                    ifNeedToAddEmptyTodo();
+                }
+            }
+        };
+        holder.todoTextView.setOnFocusChangeListener(holder.focusListener);
 
         holder.todoTextView.addTextChangedListener(holder.watcher);
         return view;
+    }
+
+    private SaveCallback newSavedTodoCallback(final Holder holder) {
+        return new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                holder.todo.setDraft(false);
+                setItalicIfDraft(holder.todo, holder.todoTextView);
+                Log.d("Save Keyboard", "Save Eventually done ...");
+                Toast notif = Toast.makeText(context, holder.todo.getTitle() + " enregistré", Toast.LENGTH_SHORT);
+                notif.show();
+            }
+        };
     }
 
     public void setItalicIfDraft(Todo todo, EditText editText) {
@@ -184,12 +204,14 @@ public class TodoListAdapter extends BaseAdapter {
         Todo todo;
         TextWatcher watcher;
         ImageButton delete;
+        View.OnFocusChangeListener focusListener;
 
-        public Holder(EditText todoTextView, Todo todo, TextWatcher watcher, ImageButton delete) {
+        public Holder(EditText todoTextView, Todo todo, TextWatcher watcher, ImageButton delete, View.OnFocusChangeListener focusListener) {
             this.todo = todo;
             this.todoTextView = todoTextView;
             this.watcher = watcher;
             this.delete = delete;
+            this.focusListener = focusListener;
         }
     }
 

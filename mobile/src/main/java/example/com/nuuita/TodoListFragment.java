@@ -205,8 +205,17 @@ public class TodoListFragment extends Fragment {
         this.todoListName = todoListName;
     }
 
-    public void addTodoToCache (Todo newTodo) {
-        todoList.add(newTodo);
+    public void updateCache(Todo newTodo) {
+        boolean update = false;
+        for (int i = 0; i < todoList.size(); i++) {
+            if (todoList.get(i).getUuidString().equals(newTodo.getUuidString())) {
+                update = true;
+                Log.d("Cache", "cache update,  cache: " + todoList.get(i).getTitle() + " newTodo: " + newTodo.getTitle());
+            }
+        }
+        if (update == false) {
+            todoList.add(newTodo);
+        }
     }
     public void removeTodoFromCache (Todo todo) {
         todoList.remove(todo);
