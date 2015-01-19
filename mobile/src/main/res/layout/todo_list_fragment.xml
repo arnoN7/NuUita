@@ -21,12 +21,11 @@
         android:layout_alignParentRight="true"
         />
     <TextView
-        android:id="@+id/loggedin_info"
+        android:id="@+id/todolist_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
         android:gravity="center"
-        android:text="@string/not_logged_in"
         android:textAlignment="center"
         android:textSize="18sp"
         android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
@@ -36,7 +35,7 @@
         android:id="@+id/todo_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/loggedin_info"
+        android:layout_below="@id/todolist_title"
         android:descendantFocusability="afterDescendants"
         android:focusable="false">
     </ListView>

@@ -2,8 +2,7 @@
     <string name="app_name">NuUita</string>
     <string name="PleaseSome">Entrez un article</string>
     <string name="save">Enregistrer</string>
-    <string name="not_logged_in">Mode déconnecté</string>
-    <string name="logged_in">Bonjour, %1$s</string>
+    <string name="list_title">Liste: %1$s</string>
     <string name="drawer_open">Ouvrir le menu</string>
     <string name="drawer_close">Fermer le menu</string>
     <string name="action_logout">Déconnexion</string>

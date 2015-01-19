@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.parse.ParseACL;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRole;
 import com.parse.ParseUser;
@@ -30,15 +29,13 @@ public class TodoListFragment extends Fragment {
     private TodoListAdapter todoListAdapter;
     private List<Todo> todoList;
     public static final String TAG = "TodoListFragment";
-    public static final String ROLE_NAME_KEY = "name";
-    public static final String ARG_TODO_LIST_NAME = "todo_list_name";
 
     // For showing empty and non-empty todo views
     private Button buttonOk;
     private String todoListName;
     private ParseRole todoListRole;
 
-    private TextView loggedInInfoView;
+    private TextView todolistTitleInfoView;
 
     public static TodoListFragment newInstance(ParseRole role) {
         TodoListFragment fragment = new TodoListFragment();
@@ -68,7 +65,7 @@ public class TodoListFragment extends Fragment {
         }
 
         // Set up the views
-        loggedInInfoView = (TextView) v.findViewById(R.id.loggedin_info);
+        todolistTitleInfoView = (TextView) v.findViewById(R.id.todolist_title);
         buttonOk = (Button) v.findViewById(R.id.buttonSetTODO);
         buttonOk.setVisibility(View.INVISIBLE);
         buttonOk.setOnClickListener(new View.OnClickListener() {
@@ -77,7 +74,7 @@ public class TodoListFragment extends Fragment {
                 synchroniseTodos();
             }
         });
-        updateLoggedInInfo();
+        updateListInfo();
 
         List<Todo> todoList = getTodos(false);
         //Add empty item at the end of the list
@@ -179,14 +176,8 @@ public class TodoListFragment extends Fragment {
         todoListRole.deleteEventually();
     }
 
-    public void updateLoggedInInfo() {
-        if (!ParseAnonymousUtils.isLinked(ParseUser.getCurrentUser())) {
-            ParseUser currentUser = ParseUser.getCurrentUser();
-            loggedInInfoView.setText(getString(R.string.logged_in,
-                    currentUser.getString("name")));
-        } else {
-            loggedInInfoView.setText(getString(R.string.not_logged_in));
-        }
+    public void updateListInfo() {
+        todolistTitleInfoView.setText(getString(R.string.list_title, todoListRole.getString(Todo.LIST_NAME_KEY)));
     }
 
     public String getTodoListName() {
