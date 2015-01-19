@@ -163,7 +163,7 @@ public class TodoListAdapter extends BaseAdapter {
             public void onFocusChange(View v, boolean hasFocus) {
                 final int position2 = holder.todoTextView.getId();
                 final EditText Caption = (EditText) holder.todoTextView;
-                if (hasFocus == false && holder.todo.isDraft()) {
+                if (holder.todo.isDraft()) {
                     Log.d("Focus", "Save old title: "+ holder.todo.getTitle() + " New Title: " + holder.todoTextView.getText().toString());
                     holder.todo.setTitle(holder.todoTextView.getText().toString());
                     holder.todo.saveEventually(newSavedTodoCallback(holder));
@@ -182,11 +182,16 @@ public class TodoListAdapter extends BaseAdapter {
         return new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                holder.todo.setDraft(false);
-                setItalicIfDraft(holder.todo, holder.todoTextView);
-                Log.d("Save Keyboard", "Save Eventually done ...");
-                Toast notif = Toast.makeText(context, holder.todo.getTitle() + " enregistré", Toast.LENGTH_SHORT);
-                notif.show();
+                if (e == null) {
+                    holder.todo.setDraft(false);
+                    setItalicIfDraft(holder.todo, holder.todoTextView);
+                    Log.d("Save Keyboard", "Save Eventually done ...");
+                    Toast notif = Toast.makeText(context, holder.todo.getTitle() + " enregistré", Toast.LENGTH_SHORT);
+                    notif.show();
+                } else {
+                    Toast notif = Toast.makeText(context, "Erreur lors de l'enregistrement de " + holder.todo.getTitle() + "\n Problème de connexion? Toucher pour retenter.", Toast.LENGTH_SHORT);
+                    notif.show();
+                }
             }
         };
     }

@@ -102,6 +102,9 @@ public class TodoListFragment extends Fragment {
                 requestedTodoList = query.find();
                 Log.d("Load " , todoListName + ": size=" + requestedTodoList.size());
                 todoList = requestedTodoList;
+                for (int i = 0; i < todoList.size(); i++) {
+                    todoList.get(i).setDraft(false);
+                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
