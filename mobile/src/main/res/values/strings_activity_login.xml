@@ -15,4 +15,5 @@
     <string name="error_incorrect_password">Le mot de passe est incorrect</string>
     <string name="error_field_required">Champ requis</string>
     <string name="error_empty_pseudo">Champ requis</string>
+    <string name="error_network">Echec de l\'authentification vérifiez votre connexion internet</string>
 </resources>
