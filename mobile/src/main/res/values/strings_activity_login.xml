@@ -3,7 +3,8 @@
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
+    <string name="prompt_password">mot de passe</string>
+    <string name="prompt_pseudo">prénom ou pseudo</string>
     <string name="action_sign_in">Se connecter</string>
     <string name="action_sign_up">S\'inscrire</string>
     <string name="action_sign_in_short">Sign in</string>
@@ -11,6 +12,7 @@
     <string name="error_invalid_email">Email invalide</string>
     <string name="error_invalid_password">Mot de passe trop court</string>
     <string name="error_password_dont_match">Les mots de passes ne correspondent pas</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
+    <string name="error_incorrect_password">Le mot de passe est incorrect</string>
+    <string name="error_field_required">Champ requis</string>
+    <string name="error_empty_pseudo">Champ requis</string>
 </resources>

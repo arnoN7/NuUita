@@ -45,11 +45,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+    public final String USERNAME_KEY = "name";
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private EditText mPasswordReapeatView;
+    private EditText mPseudo;
     private View mProgressView;
     private View mLoginFormView;
     private TextView mSignUp;
@@ -69,6 +71,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordReapeatView = (EditText) findViewById(R.id.repeatedPassword);
         mPasswordReapeatView.setVisibility(View.GONE);
+        mPseudo = (EditText) findViewById(R.id.pseudo);
+        mPseudo.setVisibility(View.GONE);
         mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mSignUp = (TextView) findViewById(R.id.sign_up_text);
         mSignUp.setOnClickListener(new OnClickListener() {
@@ -76,11 +80,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             public void onClick(View v) {
                 if (signUp == false) {
                     mPasswordReapeatView.setVisibility(View.VISIBLE);
+                    mPseudo.setVisibility(View.VISIBLE);
                     mEmailSignInButton.setText(getString(R.string.action_sign_up));
                     mSignUp.setText(getString(R.string.action_sign_in));
                     signUp = true;
                 } else {
                     mPasswordReapeatView.setVisibility(View.GONE);
+                    mPseudo.setVisibility(View.GONE);
                     mEmailSignInButton.setText(getString(R.string.action_sign_in));
                     mSignUp.setText(getString(R.string.action_sign_up));
                     signUp = false;
@@ -133,6 +139,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+        String pseudo = "";
 
         boolean cancel = false;
         View focusView = null;
@@ -146,9 +153,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         }
         if (signUp == true) {
             String repeatedPass = mPasswordReapeatView.getText().toString();
+            pseudo = mPseudo.getText().toString();
             if (!isRepeatedPassEquals(password, repeatedPass)) {
                 mPasswordReapeatView.setError(getString(R.string.error_password_dont_match));
                 focusView = mPasswordReapeatView;
+                cancel = true;
+            }
+            if(TextUtils.isEmpty(pseudo)) {
+                mPseudo.setError(getString(R.string.error_empty_pseudo));
+                focusView = mPseudo;
                 cancel = true;
             }
         }
@@ -172,7 +185,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(email, password, pseudo);
             mAuthTask.execute((Void) null);
         }
     }
@@ -291,11 +304,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         private final String mEmail;
         private final String mPassword;
+        private final String mPseudo;
         private ParseUser currentUser;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(String email, String password, String pseudo) {
             mEmail = email;
             mPassword = password;
+            mPseudo = pseudo;
             ParseUser.logOut();
             currentUser = null;
         }
@@ -306,6 +321,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 if (signUp) {
                     ParseUser user = new ParseUser();
                     user.setUsername(mEmail);
+                    user.put(USERNAME_KEY, mPseudo);
                     user.setPassword(mPassword);
                     user.setEmail(mEmail);
                     user.signUp();
