@@ -34,6 +34,7 @@ public class TodoListAdapter extends BaseAdapter {
     Context context;
     Button buttonOk;
     TodoListFragment fragment;
+    Holder modifiedHolder;
 
 
     public TodoListAdapter(Context context, int resource, List<Todo> objects, Button buttonOk, TodoListFragment fragment) {
@@ -143,15 +144,15 @@ public class TodoListAdapter extends BaseAdapter {
                 final int position2 = holder.todoTextView.getId();
                 final EditText Caption = (EditText) holder.todoTextView;
                 if (Caption.getText().toString().length() > 0) {
-                    // todoList.get(position2).setTitle(Caption.getText().toString());
                     todoList.get(position2).setDraft(true);
-                    //buttonOk.setVisibility(View.VISIBLE);
                     setItalicIfDraft(todoList.get(position2), Caption);
                 } else {
-                    //buttonOk.setVisibility(View.INVISIBLE);
                     final String please = ((Activity) context).getString(R.string.PleaseSome);
                     Toast.makeText(context, please, Toast.LENGTH_SHORT).show();
                 }
+                Log.d("Focus", "Save old title: "+ holder.todo.getTitle() + " New Title: " + holder.todoTextView.getText().toString());
+                modifiedHolder = holder;
+                modifiedHolder.todo.setTitle(Caption.getText().toString());
             }
 
             @Override
@@ -161,13 +162,11 @@ public class TodoListAdapter extends BaseAdapter {
         holder.focusListener = new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                final int position2 = holder.todoTextView.getId();
-                final EditText Caption = (EditText) holder.todoTextView;
-                if (holder.todo.isDraft()) {
-                    Log.d("Focus", "Save old title: "+ holder.todo.getTitle() + " New Title: " + holder.todoTextView.getText().toString());
-                    holder.todo.setTitle(holder.todoTextView.getText().toString());
-                    holder.todo.saveEventually(newSavedTodoCallback(holder));
-                    fragment.updateCache(holder.todo);
+                if (modifiedHolder != null && modifiedHolder.todo.isDraft() && !modifiedHolder.todo.getUuidString().equals(holder.todo.getUuidString())) {
+                    //User focus on another item
+                    modifiedHolder.todo.saveEventually(newSavedTodoCallback(modifiedHolder));
+                    fragment.updateCache(modifiedHolder.todo);
+                    Log.d("Focus", "Save : "+ modifiedHolder.todo.getTitle());
                     ifNeedToAddEmptyTodo();
                 }
             }
