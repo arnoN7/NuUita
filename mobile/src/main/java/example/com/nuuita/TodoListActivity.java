@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -124,6 +126,18 @@ public class TodoListActivity extends Activity {
 
                     // Set an EditText view to get user input
                     final EditText input = new EditText(TodoListActivity.this);
+                    InputFilter filter = new InputFilter() {
+                        @Override
+                        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                            for (int i = start; i < end; i++) {
+                                if (!Character.isLetterOrDigit(source.charAt(i)) && !Character.isSpaceChar(source.charAt(i))) {
+                                    return "";
+                                }
+                            }
+                            return null;
+                        }
+                    };
+                    input.setFilters(new InputFilter[]{filter});
                     alert.setView(input);
 
                     alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
