@@ -3,7 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical" >
-
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkBox"
+        />
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -18,9 +22,11 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:textSize="20sp"
-        android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@+id/buttonDeleteTODO"
+        android:layout_toRightOf="@id/checkBox"
         android:inputType="textCapWords"
         android:imeOptions="actionSend"
         />
+
+
 </RelativeLayout>
