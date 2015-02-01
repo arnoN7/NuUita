@@ -162,12 +162,18 @@ public class TodoListAdapter extends BaseAdapter {
         holder.focusListener = new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (modifiedHolder != null && modifiedHolder.todo.isDraft() && !modifiedHolder.todo.getUuidString().equals(holder.todo.getUuidString())) {
+                Log.d("Focus", "onFocusChange");
+                if(modifiedHolder == null) {
+                    //modifiedHolder = holder;
+                    //Log.d("modifiedHolder", "No previous holder. Current : " + modifiedHolder.todo.getTitle());
+                } else if (modifiedHolder.todo.isDraft() && !modifiedHolder.todo.getUuidString().equals(holder.todo.getUuidString())) {
                     //User focus on another item
                     modifiedHolder.todo.saveEventually(newSavedTodoCallback(modifiedHolder));
                     fragment.updateCache(modifiedHolder.todo);
                     Log.d("Focus", "Save : "+ modifiedHolder.todo.getTitle());
                     ifNeedToAddEmptyTodo();
+                    //Log.d("modifiedHolder", "Previous holder : "+ modifiedHolder.todo.getTitle() + " Current : " + modifiedHolder.todo.getTitle());
+                    //modifiedHolder = holder;
                 }
             }
         };
