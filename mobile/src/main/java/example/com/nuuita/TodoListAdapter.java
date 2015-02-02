@@ -14,8 +14,10 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,14 +83,17 @@ public class TodoListAdapter extends BaseAdapter {
         String todoTitle = todo.getTitle();
         EditText todoTextView;
         ImageButton deleteButton;
+        CheckBox isBuyCheckBox;
+
         if (view == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.list_item_todo, null);
             todoTextView = (EditText) view.findViewById(R.id.todo_title);
             deleteButton = (ImageButton) view.findViewById(R.id.buttonDeleteTODO);
+            isBuyCheckBox = (CheckBox) view.findViewById(R.id.checkBox);
             todoTextView.setTag(position);
             todoTextView.setText(todoTitle);
-            holder = new Holder(todoTextView, todo, null, deleteButton, null);
+            holder = new Holder(todoTextView, todo, null, deleteButton, null,isBuyCheckBox);
             view.setTag(holder);
         } else {
             holder = (Holder) view.getTag();
@@ -215,13 +220,16 @@ public class TodoListAdapter extends BaseAdapter {
         TextWatcher watcher;
         ImageButton delete;
         View.OnFocusChangeListener focusListener;
+        CheckBox isBuyCheckBox;
 
-        public Holder(EditText todoTextView, Todo todo, TextWatcher watcher, ImageButton delete, View.OnFocusChangeListener focusListener) {
+        public Holder(EditText todoTextView, Todo todo, TextWatcher watcher, ImageButton delete, View.OnFocusChangeListener focusListener, CheckBox isBuyCheckBox) {
             this.todo = todo;
             this.todoTextView = todoTextView;
             this.watcher = watcher;
             this.delete = delete;
             this.focusListener = focusListener;
+            this.isBuyCheckBox = isBuyCheckBox;
+
         }
     }
 

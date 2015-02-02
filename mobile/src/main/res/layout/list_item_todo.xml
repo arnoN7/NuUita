@@ -24,7 +24,7 @@
         android:textSize="20sp"
         android:layout_toLeftOf="@+id/buttonDeleteTODO"
         android:layout_toRightOf="@id/checkBox"
-        android:inputType="textCapWords"
+        android:inputType="textCapSentences"
         android:imeOptions="actionSend"
         />
 
