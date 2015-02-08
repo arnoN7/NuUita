@@ -15,6 +15,7 @@ import com.parse.ParseACL;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseRole;
 import com.parse.ParseUser;
 
@@ -217,5 +218,20 @@ public class TodoListFragment extends Fragment {
 
     public void setTodoListRole(ParseRole todoListRole) {
         this.todoListRole = todoListRole;
+    }
+
+    public void sendNotificationToUsers(Todo todo) {
+        List<ParseUser> users = null;
+        try {
+            users = todoListRole.getUsers().getQuery().find();
+            for (int i = 0; i < users.size(); i++) {
+                if (!users.get(i).getEmail().equals(ParseUser.getCurrentUser().getEmail())) {
+                    Utils.sendPushToUser(users.get(i), todo.getTitle() + " ajouté à la liste" + todoListRole.getName());
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
     }
 }

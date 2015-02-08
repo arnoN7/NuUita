@@ -27,6 +27,7 @@ public class NuUitaApplication extends Application {
         ParseACL defaultACL = new ParseACL();
         ParseACL.setDefaultACL(defaultACL, true);
 
+
         /*ParsePush.("", new SaveCallback() {
             @Override
             public void done(ParseException e) {

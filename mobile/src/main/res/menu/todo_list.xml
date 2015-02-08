@@ -16,6 +16,7 @@
     </item>
    <item
         android:id="@+id/action_logout"
+        android:showAsAction="ifRoom"
         android:title="@string/action_logout">
     </item>
 

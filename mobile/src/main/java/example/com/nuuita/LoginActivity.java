@@ -49,7 +49,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-    public final String USERNAME_KEY = "name";
+    public static final String USERNAME_KEY = "name";
 
     // UI references.
     private AutoCompleteTextView mEmailView;
