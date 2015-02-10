@@ -13,6 +13,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.InputFilter;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +30,8 @@ import android.widget.Toast;
 import com.parse.ParseACL;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseRole;
 import com.parse.ParseUser;
@@ -43,6 +46,7 @@ public class TodoListActivity extends Activity {
     public static final int LOGIN_ACTIVITY_CODE = 100;
     public static final int EDIT_ACTIVITY_CODE = 200;
     public static String EMAIL_KEY = "email";
+    public static String USER_KEY = "user";
     private DrawerLayout mDrawerLayout;
     private ListView mNavigationMenu;
     private CharSequence mDrawerTitle;
@@ -77,6 +81,15 @@ public class TodoListActivity extends Activity {
             //Get TodoLists Names
             fragments = initTodoListRoles();
 
+            //Associate Installation with currentUser
+            // Associate the device with a user
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            if (installation == null || installation.get(USER_KEY) == null ||
+                    (!((ParseUser)installation.get(USER_KEY)).getEmail().equals(ParseUser.getCurrentUser().getEmail()))) {
+                installation.put(USER_KEY,ParseUser.getCurrentUser());
+                installation.saveInBackground();
+                Log.d("Installation", "Save New User : " + ParseUser.getCurrentUser().getEmail());
+            }
             // set a custom shadow that overlays the main content when the drawer opens
             mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
             // Set the adapter for the list view
@@ -155,14 +168,15 @@ public class TodoListActivity extends Activity {
                             todoListRole.getUsers().add(ParseUser.getCurrentUser());
                             TodoListFragment newFragment = TodoListFragment.newInstance(todoListRole);
                             fragments.add(newFragment);
-                            todoListRole.saveEventually(new SaveCallback() {
-                                @Override
-                                public void done(ParseException e) {
-                                    selectItem(index);
-                                    Toast listCreated = Toast.makeText(getApplication(), getString(R.string.new_list_created, newTodoList), Toast.LENGTH_LONG);
-                                    listCreated.show();
-                                }
-                            });
+                            try {
+                                todoListRole.save();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            selectItem(index);
+                            Toast listCreated = Toast.makeText(getApplication(), getString(R.string.new_list_created, newTodoList), Toast.LENGTH_LONG);
+                            ParsePush.subscribeInBackground(todoListRole.getName());
+                            listCreated.show();
                         }
                     });
 
@@ -304,7 +318,7 @@ public class TodoListActivity extends Activity {
             alert.setTitle("Partager la liste \""+currentFragment.getTodoListName()+"\"");
             String message = getString(R.string.shareWith);
             if (sharedUsers.size() == 1) {
-                message += "personne";
+                message += " personne";
             } else {
                 int nb_shares = 0;
                 for (int i = 0; i < sharedUsers.size(); i++) {
@@ -346,6 +360,8 @@ public class TodoListActivity extends Activity {
                     if(users.size() > 0)
                     {
                         currentFragment.shareListWithUser(users.get(0));
+                        Utils.sendPushToUser(users.get(0), ParseUser.getCurrentUser().get(LoginActivity.USERNAME_KEY) +
+                                " a partagé la liste " + currentFragment.getTodoListName() + " avec vous.");
                     }
 
                 }
@@ -380,8 +396,8 @@ public class TodoListActivity extends Activity {
             final ParseRole  roleToDelete = currentFragment.getTodoListRole();
             String todoListName = roleToDelete.getString(Todo.LIST_NAME_KEY);
 
-            alert.setTitle("Supprimer la liste: " + todoListName);
-            alert.setMessage("Voulez-vous vraiment supprimer la liste " + todoListName + "?");
+            alert.setTitle(R.string.SuppressList + todoListName);
+            alert.setMessage(R.string.doUWanaSUppress + todoListName + "?");
 
             alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {

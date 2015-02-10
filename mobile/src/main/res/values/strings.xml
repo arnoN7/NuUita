@@ -8,8 +8,11 @@
     <string name="action_logout">Déconnexion</string>
     <string name="action_delete">Supprimer</string>
     <string name="action_share">Partager la liste</string>
-    <string name="shareWith">Vous partagez déjà la liste avec</string>
+    <string name="shareWith">Vous partagez déjà la liste avec </string>
     <string name="EmailPartageW">E-mail de la Nouvelle personne avec qui vous voulez partagez la liste</string>log_in
     <string name="log_in">Identification</string>
     <string name="new_list_created">La nouvelle liste %1$s a été créée</string>
+    <string name="doUWanaSUppress">Voulez-vous vraiment supprimer la liste</string>
+    <string name="SuppressList">Supprimer la liste: </string>
+
 </resources>

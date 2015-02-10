@@ -2,12 +2,14 @@ package example.com.nuuita;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -94,6 +96,7 @@ public class TodoListAdapter extends BaseAdapter {
             todoTextView.setTag(position);
             todoTextView.setText(todoTitle);
             holder = new Holder(todoTextView, todo, null, deleteButton, null,isBuyCheckBox);
+
             view.setTag(holder);
         } else {
             holder = (Holder) view.getTag();
@@ -131,6 +134,7 @@ public class TodoListAdapter extends BaseAdapter {
                     holder.todo.setTitle(holder.todoTextView.getText().toString());
                     holder.todo.saveEventually(newSavedTodoCallback(holder));
                     fragment.updateCache(holder.todo);
+                    fragment.sendNotificationToUsers(holder.todo);
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     ifNeedToAddEmptyTodo();
@@ -142,6 +146,7 @@ public class TodoListAdapter extends BaseAdapter {
         holder.watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                modifiedHolder = holder;
             }
 
             @Override
@@ -164,25 +169,32 @@ public class TodoListAdapter extends BaseAdapter {
             public void afterTextChanged(Editable editable) {
             }
         };
-        holder.focusListener = new View.OnFocusChangeListener() {
+        holder.touchListener = new View.OnTouchListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                Log.d("Focus", "onFocusChange");
-                if(modifiedHolder == null) {
-                    //modifiedHolder = holder;
-                    //Log.d("modifiedHolder", "No previous holder. Current : " + modifiedHolder.todo.getTitle());
-                } else if (modifiedHolder.todo.isDraft() && !modifiedHolder.todo.getUuidString().equals(holder.todo.getUuidString())) {
-                    //User focus on another item
-                    modifiedHolder.todo.saveEventually(newSavedTodoCallback(modifiedHolder));
-                    fragment.updateCache(modifiedHolder.todo);
-                    Log.d("Focus", "Save : "+ modifiedHolder.todo.getTitle());
-                    ifNeedToAddEmptyTodo();
-                    //Log.d("modifiedHolder", "Previous holder : "+ modifiedHolder.todo.getTitle() + " Current : " + modifiedHolder.todo.getTitle());
-                    //modifiedHolder = holder;
+            public boolean onTouch(View v, MotionEvent event) {
+                int position = (Integer) v.getTag();
+                Todo currentTodo = todoList.get(position);
+                Log.d("Focus", "onTouchChange position: " + position);
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (modifiedHolder == null) {
+                        //modifiedHolder = holder;
+                        //Log.d("modifiedHolder", "No previous holder. Current : " + modifiedHolder.todo.getTitle());
+                    } else if (modifiedHolder.todo.isDraft() && !modifiedHolder.todo.equals(currentTodo)) {
+                        //User focus on another item
+                        modifiedHolder.todo.saveEventually(newSavedTodoCallback(modifiedHolder));
+                        fragment.updateCache(modifiedHolder.todo);
+                        fragment.sendNotificationToUsers(modifiedHolder.todo);
+                        Log.d("Focus", "Save : " + modifiedHolder.todo.getTitle());
+                        ifNeedToAddEmptyTodo();
+                        Log.d("modifiedHolder", "Previous holder : " + modifiedHolder.todo.getTitle() + " ID: " + modifiedHolder.todo.getUuidString() +
+                                " Current : " + currentTodo.getTitle() + " ID: " + currentTodo.getUuidString());
+                        //modifiedHolder = holder;
+                    }
                 }
+                return false;
             }
         };
-        holder.todoTextView.setOnFocusChangeListener(holder.focusListener);
+        holder.todoTextView.setOnTouchListener(holder.touchListener);
 
         holder.todoTextView.addTextChangedListener(holder.watcher);
         return view;
@@ -219,16 +231,21 @@ public class TodoListAdapter extends BaseAdapter {
         Todo todo;
         TextWatcher watcher;
         ImageButton delete;
+        View.OnTouchListener touchListener;
+
         View.OnFocusChangeListener focusListener;
         CheckBox isBuyCheckBox;
 
-        public Holder(EditText todoTextView, Todo todo, TextWatcher watcher, ImageButton delete, View.OnFocusChangeListener focusListener, CheckBox isBuyCheckBox) {
+        public Holder(EditText todoTextView, Todo todo, TextWatcher watcher, ImageButton delete , View.OnTouchListener touchListener, CheckBox isBuyCheckBox) {
+
             this.todo = todo;
             this.todoTextView = todoTextView;
             this.watcher = watcher;
             this.delete = delete;
-            this.focusListener = focusListener;
+
             this.isBuyCheckBox = isBuyCheckBox;
+
+            this.touchListener = null;
 
         }
     }

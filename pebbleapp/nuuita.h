@@ -3,6 +3,6 @@
 
 #include <pebble.h>
 
-void list_items(DictionaryIterator *iter, char *lname);
+void get_list_items(int32_t item_id, char *item_title, Window *window, int32_t end_of_list);
 
 #endif

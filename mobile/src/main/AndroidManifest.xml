@@ -29,8 +29,8 @@
   to match your app's package name + ".permission.C2D_MESSAGE".
 -->
     <permission android:protectionLevel="signature"
-        android:name="com.parse.offlinetodos.permission.C2D_MESSAGE" />
-    <uses-permission android:name="com.parse.offlinetodos.permission.C2D_MESSAGE" />
+        android:name="example.com.nuuita.permission.C2D_MESSAGE" />
+    <uses-permission android:name="example.com.nuuita.permission.C2D_MESSAGE" />
 
     <application
         android:allowBackup="true"
