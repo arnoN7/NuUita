@@ -1,7 +1,9 @@
 package example.com.nuuita;
 
 import android.app.Application;
+import android.content.IntentFilter;
 
+import com.getpebble.android.kit.Constants;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseObject;
@@ -19,6 +21,8 @@ public class NuUitaApplication extends Application {
 
         // add todo's subclass
         ParseObject.registerSubclass(Todo.class);
+
+
 
         // enable the Local Datastore
         Parse.enableLocalDatastore(getApplicationContext());

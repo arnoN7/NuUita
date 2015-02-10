@@ -7,6 +7,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
@@ -27,6 +28,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.getpebble.android.kit.Constants;
 import com.parse.ParseACL;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
@@ -57,6 +59,7 @@ public class TodoListActivity extends Activity {
     private ArrayAdapter<String> navigationMenuAdapter;
     private RelativeLayout mLeftDrawer;
     private TodoListFragment currentFragment;
+    private PebbleCommunication currentPebbleCom;
 
     public TodoListFragment getCurrentFragment(){
         return currentFragment;
@@ -73,6 +76,8 @@ public class TodoListActivity extends Activity {
             goToLoginActivity();
             finish();
         } else {
+            currentPebbleCom = new PebbleCommunication(this);
+            registerReceiver(new MyPebbleReceiver(currentPebbleCom), new IntentFilter(Constants.INTENT_APP_RECEIVE));
             mTitle = mDrawerTitle = getTitle();
             mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
             mNavigationMenu = (ListView) findViewById(R.id.list_navigation_menu);
@@ -80,6 +85,7 @@ public class TodoListActivity extends Activity {
             mLeftDrawer = (RelativeLayout) findViewById(R.id.left_drawer);
             //Get TodoLists Names
             fragments = initTodoListRoles();
+            currentPebbleCom.setFragmentList(fragments);
 
             //Associate Installation with currentUser
             // Associate the device with a user
@@ -94,7 +100,7 @@ public class TodoListActivity extends Activity {
             mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
             // Set the adapter for the list view
             navigationMenuAdapter = new ArrayAdapter<String>(this,
-                    R.layout.drawer_list_item, getTodoListsNames(fragments));
+                    R.layout.drawer_list_item, Utils.getTodoListsNames(fragments));
             mNavigationMenu.setAdapter(navigationMenuAdapter);
             AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
                 @Override
@@ -273,6 +279,7 @@ public class TodoListActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        currentPebbleCom.onResume();
     }
 
 
@@ -446,14 +453,5 @@ public class TodoListActivity extends Activity {
         }
     };
 
-    public List<String> getTodoListsNames (List<TodoListFragment> fragments) {
-        List<String> names = null;
-        if (fragments != null) {
-            names =new ArrayList<String>();
-            for (int i = 0; i < fragments.size(); i++) {
-                names.add(fragments.get(i).getTodoListRole().getString(Todo.LIST_NAME_KEY));
-            }
-        }
-        return names;
-    }
+
 }

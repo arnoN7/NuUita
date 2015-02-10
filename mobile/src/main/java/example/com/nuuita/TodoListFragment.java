@@ -90,7 +90,7 @@ public class TodoListFragment extends Fragment {
         return v;
     }
 
-    private List<Todo> getTodos(boolean forceServerRequest) {
+    public List<Todo> getTodos(boolean forceServerRequest) {
         List<Todo> requestedTodoList = todoList;
 
         if (forceServerRequest == true) {

@@ -10,6 +10,7 @@ import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,6 +42,17 @@ public class Utils {
         push.setQuery(pushQuery); // Set our Installation query
         push.setMessage(pushText);
         push.sendInBackground();
+    }
+
+    public static List<String> getTodoListsNames (List<TodoListFragment> fragments) {
+        List<String> names = null;
+        if (fragments != null) {
+            names =new ArrayList<String>();
+            for (int i = 0; i < fragments.size(); i++) {
+                names.add(fragments.get(i).getTodoListRole().getString(Todo.LIST_NAME_KEY));
+            }
+        }
+        return names;
     }
 
 
