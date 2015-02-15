@@ -68,13 +68,13 @@ uses-permission#android.permission.READ_CONTACTS
 ADDED from AndroidManifest.xml:25:5
 	android:name
 		ADDED from AndroidManifest.xml:25:22
-permission#com.parse.offlinetodos.permission.C2D_MESSAGE
+permission#example.com.nuuita.permission.C2D_MESSAGE
 ADDED from AndroidManifest.xml:31:5
 	android:protectionLevel
 		ADDED from AndroidManifest.xml:31:17
 	android:name
 		ADDED from AndroidManifest.xml:32:9
-uses-permission#com.parse.offlinetodos.permission.C2D_MESSAGE
+uses-permission#example.com.nuuita.permission.C2D_MESSAGE
 ADDED from AndroidManifest.xml:33:5
 	android:name
 		ADDED from AndroidManifest.xml:33:22
