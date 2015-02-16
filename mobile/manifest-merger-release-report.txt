@@ -189,6 +189,12 @@ ADDED from com.google.android.gms:play-services:6.5.87:21:9
 		ADDED from com.google.android.gms:play-services:6.5.87:23:13
 	android:name
 		ADDED from com.google.android.gms:play-services:6.5.87:22:13
+android:uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+IMPLIED from AndroidManifest.xml:2:1 reason: com.getpebble.android.kit has a targetSdkVersion < 4
+android:uses-permission#android.permission.READ_PHONE_STATE
+IMPLIED from AndroidManifest.xml:2:1 reason: com.getpebble.android.kit has a targetSdkVersion < 4
+android:uses-permission#android.permission.READ_EXTERNAL_STORAGE
+IMPLIED from AndroidManifest.xml:2:1 reason: com.getpebble.android.kit requested WRITE_EXTERNAL_STORAGE
 meta-data#com.google.android.wearable.beta.app
 ADDED from AndroidManifest.xml:5:9
 	android:resource

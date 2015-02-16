@@ -27,6 +27,7 @@ public class NuUitaApplication extends Application {
         // enable the Local Datastore
         Parse.enableLocalDatastore(getApplicationContext());
         Parse.initialize(this, "GeDgr7ykroUMA85QY8wyU8LR2KClQqbXlHtoz6Mx", "n9PZAknvxDGQbb24YW1I8XUgddQXnykwLAdJuNdz");
+        //Parse.initialize(this, "jTBfjQy2WM5qlZVaAyc9B205Vco58A0ApYWUkS61", "cCE5dVPWistxnehqZwcd8H6AgomT4SvM4Ri54u62");
         ParseUser.enableAutomaticUser();
         ParseACL defaultACL = new ParseACL();
         ParseACL.setDefaultACL(defaultACL, true);

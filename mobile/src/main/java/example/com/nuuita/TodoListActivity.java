@@ -403,9 +403,10 @@ public class TodoListActivity extends Activity {
             final ParseRole  roleToDelete = currentFragment.getTodoListRole();
             String todoListName = roleToDelete.getString(Todo.LIST_NAME_KEY);
 
-            alert.setTitle(R.string.SuppressList + todoListName);
-            alert.setMessage(R.string.doUWanaSUppress + todoListName + "?");
-
+            //alert.setTitle(R.string.SuppressList + " " + todoListName);
+            alert.setTitle("Supprimer la liste: " + todoListName);
+            //alert.setMessage(R.string.doUWanaSUppress + " " + todoListName + " ?");
+            alert.setMessage("Voulez-vous vraiment supprimer la liste \"" + todoListName + "\" ?");
             alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     for (int i = 0; i < fragments.size(); i++) {

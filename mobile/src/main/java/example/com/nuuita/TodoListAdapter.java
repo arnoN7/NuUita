@@ -210,7 +210,7 @@ public class TodoListAdapter extends BaseAdapter {
                     Toast notif = Toast.makeText(context, holder.todo.getTitle() + " enregistré", Toast.LENGTH_SHORT);
                     notif.show();
                 } else {
-                    Toast notif = Toast.makeText(context, "Erreur lors de l'enregistrement de " + holder.todo.getTitle() + "\n Problème de connexion? Toucher pour retenter.", Toast.LENGTH_SHORT);
+                    Toast notif = Toast.makeText(context, "Erreur lors de l'enregistrement de " + holder.todo.getTitle() + R.string.ProblemConnection, Toast.LENGTH_SHORT);
                     notif.show();
                 }
             }
